@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" x:Class="MicrosoftNews.Views.NewsDetailsPage" Title="News details">
+    <ContentPage.Content>
+        <StackLayout BackgroundColor="#eeeeee">
+            <Label Text="{Binding Title}" VerticalOptions="CenterAndExpand" HorizontalOptions="CenterAndExpand" Margin="20" FontSize="20" FontAttributes="Bold" TextColor="Black" HorizontalTextAlignment="Center" VerticalTextAlignment="Center" />
+            <Label Text="{Binding PublishedDateString}" FontSize="16" HorizontalTextAlignment="Center" />
+            <Frame>
+                <WebView x:Name="NewsDescriptionWebView" HeightRequest="500">
+                    <WebView.Source>
+                        <HtmlWebViewSource Html="{Binding Description}" />
+                    </WebView.Source>
+                </WebView>
+            </Frame>
+        </StackLayout>
+    </ContentPage.Content>
+</ContentPage>
