@@ -11,11 +11,11 @@ namespace MicrosoftNews
     public partial class App : Application
     {
         private static IContainer _container;
-        private static Repository<News> _newsRepository;
-        private static Repository<TimeStamp> _timeStampRepository;
+        private static Repository<NewsModel> _newsRepository;
+        private static Repository<TimeStampModel> _timeStampRepository;
 
-        public static Repository<News> NewsRepository => _newsRepository ?? (_newsRepository = _container.Resolve<Repository<News>>());
-        public static Repository<TimeStamp> TimeStampRepository => _timeStampRepository ?? (_timeStampRepository = _container.Resolve<Repository<TimeStamp>>());
+        public static Repository<NewsModel> NewsRepository => _newsRepository ?? (_newsRepository = _container.Resolve<Repository<NewsModel>>());
+        public static Repository<TimeStampModel> TimeStampRepository => _timeStampRepository ?? (_timeStampRepository = _container.Resolve<Repository<TimeStampModel>>());
 
         public App(IModule[] platformSpecificModules)
         {
@@ -32,8 +32,8 @@ namespace MicrosoftNews
             var containerBuilder = new ContainerBuilder();
             RegisterPlatformSpecificModules(platformSpecificModules, containerBuilder);
 
-            containerBuilder.RegisterType<Repository<News>>().SingleInstance();
-            containerBuilder.RegisterType<Repository<TimeStamp>>().SingleInstance();
+            containerBuilder.RegisterType<Repository<NewsModel>>().SingleInstance();
+            containerBuilder.RegisterType<Repository<TimeStampModel>>().SingleInstance();
 
             _container = containerBuilder.Build();
         }

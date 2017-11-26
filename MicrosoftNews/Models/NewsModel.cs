@@ -2,15 +2,13 @@
 
 namespace MicrosoftNews.Models
 {
-    public class News
+    public class NewsModel
     {
         private DateTime _publishedDate;
+
         public string Title { get; set; }
 
         public string Description { get; set; }
-
-        public string Url { get; set; }
-
 
         public DateTime PublishedDate { get => _publishedDate; set => _publishedDate = value; }
 

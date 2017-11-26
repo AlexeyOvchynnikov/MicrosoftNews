@@ -3,20 +3,12 @@ using System.Collections.Generic;
 
 namespace MicrosoftNews.Models
 {
-    public class Feed
+    public class FeedModel
     {
-        public string Url { get; set; }
-
         public string Title { get; set; }
-
-        public string Author { get; set; }
 
         public string Description { get; set; }
 
-        public string Image { get; set; }
-
         public DateTime LastUpdatedDate { get; set; }
-
-        public IList<News> Items { get; set; }
     }
 }

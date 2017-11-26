@@ -1,96 +1,61 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
+﻿using System.Collections.ObjectModel;
 using System.Linq;
 using MicrosoftNews.Constants;
 using MicrosoftNews.Models;
 using MicrosoftNews.ViewModels.Core;
 using MicrosoftNews.Views;
-using Suyati.FeedAggreagator;
 using Xamarin.Forms;
-using System.Xml;
+using MicrosoftNews.Services;
 
 namespace MicrosoftNews.ViewModels
 {
     class MainViewModel : BaseViewModel
     {
         private readonly string _feedUrl = "https://news.microsoft.com/feed/";
+        private FeedParser _feedParser;
+        private ObservableCollection<NewsModel> _newsItems;
+        private NewsModel _selectedNews;
+        private string _channelTitle;
+        private string _channelDescription;
 
-        private RSSFeed _rssFeed;
-        private ObservableCollection<News> _newsItems;
-        private News _selectedNews;
-        private string _newsTitle;
-
-        public RSSFeed RssFeed
-        {
-            get => _rssFeed;
-            set => SetProperty(ref _rssFeed, value);
-        }
-
-        public ObservableCollection<News> NewsItems
-        {
-            get => _newsItems;
-            set => SetProperty(ref _newsItems, value);
-        }
-
-        public string NewsTitle
-        {
-            get => _newsTitle;
-            set => SetProperty(ref _newsTitle, value);
-        }
-
+        public ObservableCollection<NewsModel> NewsItems { get => _newsItems; set => SetProperty(ref _newsItems, value); }
+        public string ChannelTitle { get => _channelTitle; set => SetProperty(ref _channelTitle, value); }
+        public string ChannelDescription { get => _channelDescription; set => SetProperty(ref _channelDescription, value); }
+       
         public MainViewModel(INavigation navigationService) : base(navigationService)
         {
         }
 
         protected override void Initialize()
         {
-            bool isValidFeed = SyndicationFeed.IsValidFeed(_feedUrl);
-            if (!isValidFeed)
-            {
-                return;
-            }
+            _feedParser = new FeedParser(_feedUrl);
+            FeedModel _feed = _feedParser.GetFeed();
 
-            var syndicationFeed = SyndicationFeed.Load(_feedUrl);
-            _rssFeed = (RSSFeed)syndicationFeed.Feed;
-            NewsTitle = _rssFeed.Title;
-            var feed = syndicationFeed.Feed;
+            ChannelTitle = _feed.Title;
+            ChannelDescription = _feed.Description;
 
-            var localUpdateTime = App.TimeStampRepository.GetAll().FirstOrDefault(t => t.Key.Equals((int)AppConstants.TimeStampKeys.News))?.DateUpdated;
-            var serverUpdateTime = feed.LastUpdatedDate.ToString();
-            var newsItems = new List<News>();
+            var localUpdateTime = App.TimeStampRepository.GetAll()
+                                     .FirstOrDefault(t => t.Key.Equals((int)AppConstants.TimeStampKeys.News))?.DateUpdated;
+            var serverUpdateTime = _feed.LastUpdatedDate;
+
             if (serverUpdateTime == localUpdateTime)
             {
                 var localNews = App.NewsRepository.GetAll();
-                foreach (var item in localNews)
-                {
-                    newsItems.Add(item);
-                }
-
-                NewsItems = new ObservableCollection<News>(newsItems);
+                NewsItems = new ObservableCollection<NewsModel>(localNews);
                 return;
             }
+
+
+            var newsList = _feedParser.GetNews();
             App.NewsRepository.DropRepository();
             App.NewsRepository.CreateRepository();
+            App.NewsRepository.Insert(newsList);
+            NewsItems = new ObservableCollection<NewsModel>(newsList);
 
-            foreach (var item in feed.Items)
-            {
-                newsItems.Add(new News
-                {
-                    Title = item.Title,
-                    Description = item.Description,
-                    PublishedDate = (DateTime)item.PublishedDate,
-                    Url = item.Url
-                });
-            }
-            App.NewsRepository.Insert(newsItems);
-
-            NewsItems = new ObservableCollection<News>(newsItems);
-            App.TimeStampRepository.Insert(new TimeStamp(AppConstants.TimeStampKeys.News, serverUpdateTime));
-
+            App.TimeStampRepository.Insert(new TimeStampModel(AppConstants.TimeStampKeys.News, serverUpdateTime));
         }
 
-        public News SelectedNews
+        public NewsModel SelectedNews
         {
             set
             {
