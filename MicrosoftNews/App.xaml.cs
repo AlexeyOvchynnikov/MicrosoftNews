@@ -2,6 +2,7 @@
 using Autofac.Core;
 using MicrosoftNews.Models;
 using MicrosoftNews.Repositories;
+using MicrosoftNews.Repositories.Interfaces;
 using MicrosoftNews.ViewModels;
 using MicrosoftNews.Views;
 using Xamarin.Forms;
@@ -11,11 +12,6 @@ namespace MicrosoftNews
     public partial class App : Application
     {
         private static IContainer _container;
-        private static Repository<NewsModel> _newsRepository;
-        private static Repository<TimeStampModel> _timeStampRepository;
-
-        public static Repository<NewsModel> NewsRepository => _newsRepository ?? (_newsRepository = _container.Resolve<Repository<NewsModel>>());
-        public static Repository<TimeStampModel> TimeStampRepository => _timeStampRepository ?? (_timeStampRepository = _container.Resolve<Repository<TimeStampModel>>());
 
         public App(IModule[] platformSpecificModules)
         {
@@ -23,7 +19,8 @@ namespace MicrosoftNews
 
             InitializeComponent();
             var mainPage = new MainPage();
-            mainPage.BindingContext = new MainViewModel(mainPage.Navigation);
+            mainPage.BindingContext = 
+                new MainViewModel(mainPage.Navigation, _container.Resolve<IRepository<NewsModel>>(), _container.Resolve<IRepository<TimeStampModel>>());
             MainPage = new NavigationPage(mainPage);
         }
 
@@ -31,9 +28,7 @@ namespace MicrosoftNews
         {
             var containerBuilder = new ContainerBuilder();
             RegisterPlatformSpecificModules(platformSpecificModules, containerBuilder);
-
-            containerBuilder.RegisterType<Repository<NewsModel>>().SingleInstance();
-            containerBuilder.RegisterType<Repository<TimeStampModel>>().SingleInstance();
+            containerBuilder.RegisterGeneric(typeof(Repository<>)).As(typeof(IRepository<>)).SingleInstance();
 
             _container = containerBuilder.Build();
         }

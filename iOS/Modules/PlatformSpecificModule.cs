@@ -9,7 +9,7 @@ namespace MicrosoftNews.iOS.Modules
         protected override void Load(ContainerBuilder builder)
         {
             base.Load(builder);
-            builder.RegisterType<SqLitePathIos>().As<ISqLitePath>();
+            builder.RegisterType<SqLitePathIos>().As<ISqLitePath>().SingleInstance();
         }
     }
 }

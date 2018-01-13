@@ -9,7 +9,7 @@ namespace MicrosoftNews.Droid.Modules
         protected override void Load(ContainerBuilder builder)
         {
             base.Load(builder);
-            builder.RegisterType<SqLitePathAndroid>().As<ISqLitePath>();
+            builder.RegisterType<SqLitePathAndroid>().As<ISqLitePath>().SingleInstance();
         }
     }
 }
